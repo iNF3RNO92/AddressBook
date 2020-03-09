@@ -1,0 +1,19 @@
+﻿@model List<AddressBook.Models.ContactCellphoneModel>
+
+<table id="cellphoneNumberTable" class="table table-condensed table-hover table-responsive">
+    <thead>
+        <tr>
+            <th>Cellphone Number</th>
+            <th style="text-align:center">Maintenance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cell in Model)
+        {
+            <tr>
+                <td>@cell.CellphoneNumber</td>
+                <td style="text-align:center"><input type="button" class="btn btn-xs btn-warning" onclick="DeleteCell(@cell.Id)" value="Delete"/></td>
+            </tr>
+        }
+    </tbody>
+</table>

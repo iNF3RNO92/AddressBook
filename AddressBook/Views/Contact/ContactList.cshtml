@@ -1,0 +1,41 @@
+﻿@model List<AddressBook.Models.ContactModel>
+@{
+    ViewBag.Title = "ContactList";
+}
+
+<h2>Contacts</h2>
+
+@Html.ActionLink("Create Contact", "CreateContact", null, new { @class="btn btn-primary" })
+
+<br /><br />
+
+<table id="contactTable" class="table table-hover table-responsive table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th style="text-align:center">Maintenance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var contact in Model)
+        {
+        <tr>
+            <td>@contact.Name</td>
+            <td>@contact.Surname</td>
+            <td style="text-align:center">                
+                @Html.ActionLink("Delete", "DeleteContact", new { id = contact.Id }, new { @class = "btn btn-xs btn-danger" })
+                @Html.ActionLink("Edit", "EditContact", new { id = contact.Id }, new { @class = "btn btn-xs btn-primary" })
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts{
+    <script>
+        $(function () {
+            $("#contactTable").DataTable();
+        });                
+    </script>
+    }

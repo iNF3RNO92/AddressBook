@@ -1,0 +1,293 @@
+﻿@model AddressBook.Models.ContactModel
+@{
+    ViewBag.Title = "Edit Contact";
+}
+
+<h2 style="text-align:center">Contact: <strong>@Model.FullName</strong></h2>
+
+<div class="form-inline" style="margin-bottom:100px;margin-top:15px;">
+    <div class="form-group col-lg-6">
+        @Html.LabelFor(m => m.Name)
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", @placeholder = "Enter contact name", @onchange = "ContactNameChange()" })
+    </div>
+    <div class="form-group col-lg-6">
+        @Html.LabelFor(m => m.Surname)
+        @Html.TextBoxFor(m => m.Surname, new { @class = "form-control", @placeholder = "Enter contact surname", @onchange = "ContactSurnameChange()" })
+    </div>
+</div>
+
+<div class="col-lg-12">
+    <div class="col-lg-6">
+        <button type="button" class="btn btn-sm btn-primary" style="margin-bottom:15px" data-toggle="modal" data-target="#addCellphoneNumberModal">Add Cellphone Number</button>
+
+        <div id="cellphonePartial">
+            @{
+                Html.RenderAction("_CellphoneNumberTable", new { Id = Model.Id });
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <button type="button" class="btn btn-sm btn-primary" style="margin-bottom:15px" data-toggle="modal" data-target="#addEmailAddressModal">Add Email Address</button>
+
+        <div id="emailPartial">
+            @{
+                Html.RenderAction("_EmailAddressTable", new { Id = Model.Id });
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal addCellphoneNumberModal -->
+<div class="modal fade" id="addCellphoneNumberModal" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Cellphone Number for <strong>@Model.FullName</strong></h4>
+            </div>
+            <div class="modal-body">
+
+                <label>Cellphone Number</label>
+                <input type="tel" id="cellphoneNumber" class="form-control" maxlength="12" placeholder="Enter a cellphone Number" />
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancelCell">Cancel</button>
+                <button type="button" id="btnAddContactCell" class="btn btn-primary">Add To Contact</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal addEmailAddressModal -->
+<div class="modal fade" id="addEmailAddressModal" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Email Address for <strong>@Model.FullName</strong></h4>
+            </div>
+            <div class="modal-body">
+
+                <label>Email Address</label>
+                <input type="email" id="emailAddress" class="form-control" maxlength="100" placeholder="Enter a email address" />
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancelEmail">Cancel</button>
+                <button type="button" id="btnAddContactEmail" class="btn btn-primary">Add To Contact</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<br />
+
+@section scripts{
+    <script>
+
+        $(function () {
+            $("#cellphoneNumberTable").DataTable();
+            $("#emailAddressTable").DataTable();
+        })
+
+        function ContactNameChange() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateContactName")',
+                data: { Id: @Model.Id, name: $("#Name").val() },
+                success: function(data) {
+                    new Noty({
+                        theme: 'sunset',    
+                        layout: 'bottomRight',
+                        text: 'Successfully updated contact name'
+                    }).show();                      
+                }
+            });
+        }
+
+        function ContactSurnameChange() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateContactSurname")',
+                data: { Id: @Model.Id, Surname: $("#Surname").val() },
+                success: function(data) {
+                    new Noty({
+                        theme: 'sunset',    
+                        layout: 'bottomRight',
+                        text: 'Successfully updated contact surname'
+                    }).show();                      
+                }
+            });
+        }
+
+        $("#btnAddContactEmail").click(function () {
+            if (validateEmailAddress($("#emailAddress").val())) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AddContactEmail")',
+                    data: {
+                        contactId: @Model.Id,
+                        emailAddress: $("#emailAddress").val()
+                    },
+                    success: function (data) {
+                        if (data == true) {
+                            reloadEmailPartial();
+
+                            
+
+                            $('#addEmailAddressModal').modal('toggle');
+
+                            new Noty({
+                                theme: 'sunset',
+                                layout: 'bottomRight',
+                                text: 'Successfully added new Email Address'
+                            }).show();
+                        } else {
+                            new Noty({
+                                theme: 'sunset',
+                                layout: 'bottomRight',
+                                text: 'Email already exists for @Model.FullName'
+                            }).show();
+
+                            $("#emailAddress").focus();
+                        }                
+                    }
+                });
+            } else {
+                new Noty({
+                    theme: 'sunset',    
+                    layout: 'bottomRight',
+                    text: 'Invalid Email Address'
+                }).show();      
+                $("#emailAddress").focus();
+            }
+            
+        });
+
+        $("#btnAddContactCell").click(function () {
+            if (validatePhone($("#cellphoneNumber").val())) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AddContactCell")',
+                    data: {
+                        contactId: @Model.Id,
+                        cellNumber: $("#cellphoneNumber").val()
+                    },
+                    success: function (data) {
+                        if (data == true) {
+                            reloadCellPhonePartial();
+
+                            $("#cellphoneNumber").val('');
+
+                            $('#addCellphoneNumberModal').modal('toggle');
+
+                            new Noty({
+                                theme: 'sunset',
+                                layout: 'bottomRight',
+                                text: 'Successfully added new Number for @Model.FullName'
+                            }).show();
+                        } else {
+                            new Noty({
+                                theme: 'sunset',
+                                layout: 'bottomRight',
+                                text: 'Number already exists for @Model.FullName'
+                            }).show();
+
+                            $("#cellphoneNumber").focus();
+                        }
+
+                    }
+                });
+            } else {
+                new Noty({
+                    theme: 'sunset',
+                    layout: 'bottomRight',
+                    text: 'Please enter a valid Phone Number'
+                }).show();
+
+                $("#cellphoneNumber").focus();
+            }
+        });
+
+        function reloadEmailPartial() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("_EmailAddressTable")',
+                data: { Id: @Model.Id },
+                success: function(data) {
+                    $("#emailPartial").html(data);
+                    $("#emailAddressTable").DataTable();
+                }
+            });
+        }
+
+        function reloadCellPhonePartial() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("_CellphoneNumberTable")',
+                data: { Id: @Model.Id },
+                success: function(data) {
+                    $("#cellphonePartial").html(data);
+                    $("#cellphoneNumberTable").DataTable();
+                }
+            });
+        }
+
+        function DeleteCell(id) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteCell")',
+                data: {
+                    Id: id,
+                },
+                success: function (data) {
+                    reloadCellPhonePartial();
+
+                    new Noty({
+                        theme: 'sunset',
+                        layout: 'bottomRight',
+                        text: 'Number has successfully been removed'
+                    }).show();
+                }
+            });
+        }
+
+        function DeleteEmail(id) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteEmail")',
+                data: {
+                    Id: id,
+                },
+                success: function (data) {
+                    reloadEmailPartial();
+
+                    new Noty({
+                        theme: 'sunset',
+                        layout: 'bottomRight',
+                        text: 'Email has successfully been removed'
+                    }).show();
+                }
+            });
+        }
+
+        $("#cancelEmail,#cancelCell").click(function () {
+            $("#cellphoneNumber").val('');
+            $("#emailAddress").val('');
+        });
+
+        $("#addCellphoneNumberModal").click(function () {
+            $("#cellphoneNumber").focus();
+        });
+
+        $("#addEmailAddressModal").click(function () {
+            $("#emailAddress").focus();
+        });
+    </script>
+}

@@ -1,0 +1,19 @@
+﻿@model List<AddressBook.Models.ContactEmaillAddressModel>
+
+<table id="emailAddressTable" class="table table-condensed table-hover table-responsive">
+    <thead>
+        <tr>
+            <th>Email Address</th>
+            <th style="text-align:center">Maintenance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var email in Model)
+        {
+            <tr>
+                <td>@email.EmailAddress</td>
+                <td style="text-align:center"><input type="button" class="btn btn-xs btn-warning" onclick="DeleteEmail(@email.Id)" value="Delete" /></td>
+            </tr>
+        }
+    </tbody>
+</table>
