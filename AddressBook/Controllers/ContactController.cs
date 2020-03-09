@@ -89,24 +89,6 @@ namespace AddressBook.Controllers
                          Surname = c.Surname
                      }).Single();
 
-            model.CellphoneNumbers = (from c in db.ContactCellphoneNumbers
-                                      where c.ContactId == Id
-                                      select new ContactCellphoneModel
-                                      {
-                                          Id = c.Id,
-                                          ContactId = c.ContactId,
-                                          CellphoneNumber = c.CellphoneNumber
-                                      }).ToList();
-
-            model.EmailAddresses = (from e in db.ContactEmailAddresses
-                                    where e.ContactId == Id
-                                    select new ContactEmaillAddressModel
-                                    {
-                                        Id = e.Id,
-                                        ContactId = e.ContactId,
-                                        EmailAddress = e.EmailAddress
-                                    }).ToList();
-
             return View(model);
         }
 

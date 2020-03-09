@@ -21,9 +21,6 @@ namespace AddressBook.Models
                 return Name + " " + Surname;
             }
         }
-
-        public List<ContactCellphoneModel> CellphoneNumbers { get; set; }
-        public List<ContactEmaillAddressModel> EmailAddresses { get; set; }
     }
 
     public class ContactCellphoneModel
